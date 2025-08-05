@@ -109,6 +109,19 @@
 
 							<${''}script>
                             	${jsContent}
+							
+								// Function to send follow up message to parent window
+								function handleAdditionalArgs(message) {
+									if (window.parent) {
+										window.parent.postMessage({
+											type: 'handleAdditionalArgs',
+											message: message
+										}, '*'); // TODO: Change to window.location.origin
+									}
+								}
+								
+								// Make handleAdditionalArgs available globally
+								window.handleAdditionalArgs = handleAdditionalArgs;
 							</${''}script>
                         </body>
                         </html>
@@ -146,6 +159,16 @@
 
 	const iframeLoadHandler = () => {
 		if (iframeElement.contentWindow) {
+			window.addEventListener('message', function (event) {
+				// Here we verify the message is from the iframe
+				if (event.source === iframeElement.contentWindow) {
+					// TODO: Add checks for event.origin === window.location.origin
+					if (event.data.type === 'handleAdditionalArgs') {
+						dispatch('handleAdditionalArgs', { message: event.data.message });
+					}
+				}
+			});
+
 			iframeElement.contentWindow.addEventListener(
 				'click',
 				function (e) {
@@ -342,7 +365,8 @@
 								title="Content"
 								srcdoc={contents[selectedContentIdx].content}
 								class="w-full border-0 h-full rounded-none"
-								sandbox="allow-scripts allow-downloads{($settings?.iframeSandboxAllowForms ?? false)
+								sandbox="allow-scripts allow-downloads allow-modals{($settings?.iframeSandboxAllowForms ??
+								false)
 									? ' allow-forms'
 									: ''}{($settings?.iframeSandboxAllowSameOrigin ?? false)
 									? ' allow-same-origin'
