@@ -42,6 +42,7 @@
 	import FilesOverlay from './MessageInput/FilesOverlay.svelte';
 	import Commands from './MessageInput/Commands.svelte';
 	import ToolServersModal from './ToolServersModal.svelte';
+	import AdditionalArgs from './MessageInput/AdditionalArgs.svelte';
 
 	import RichTextInput from '../common/RichTextInput.svelte';
 	import Tooltip from '../common/Tooltip.svelte';
@@ -78,6 +79,7 @@
 	export let taskIds = null;
 
 	export let prompt = '';
+	export let additionalArgs = {};
 	export let files = [];
 
 	export let toolServers = [];
@@ -748,6 +750,14 @@
 											class="scrollbar-hidden rtl:text-right ltr:text-left bg-transparent dark:text-gray-100 outline-hidden w-full pt-2.5 pb-[5px] px-1 resize-none h-fit max-h-80 overflow-auto"
 											id="chat-input-container"
 										>
+											{#if additionalArgs && Object.keys(additionalArgs).length > 0}
+												<AdditionalArgs
+													{additionalArgs}
+													onReset={() => {
+														additionalArgs = {};
+													}}
+												/>
+											{/if}
 											<RichTextInput
 												bind:this={chatInputElement}
 												bind:value={prompt}
